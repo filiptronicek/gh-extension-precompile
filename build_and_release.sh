@@ -45,6 +45,16 @@ else
     if [ "$goos" = "windows" ]; then
       ext=".exe"
     fi
+    cc=""
+    if [ "$goos" = "android" ]; then
+      if [ "$goarch" = "amd64" ]; then
+        cc=${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android30-clang
+      elif [ "$goarch" = "arm64" ]; then
+        cc=${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android30-clang
+      fi
+      GOOS="$goos" GOARCH="$goarch" CGO_ENABLED=1 CC="$cc" go build -trimpath -ldflags="-s -w" -o "dist/${p}${ext}"
+      continue
+    fi
     GOOS="$goos" GOARCH="$goarch" CGO_ENABLED="${CGO_ENABLED:-0}" go build -trimpath -ldflags="-s -w" -o "dist/${p}${ext}"
   done
 fi
