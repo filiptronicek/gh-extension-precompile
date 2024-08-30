@@ -2,8 +2,6 @@
 set -e
 
 platforms=(
-  android-amd64
-  android-arm64
   darwin-amd64
   darwin-arm64
   freebsd-386
@@ -17,6 +15,11 @@ platforms=(
   windows-amd64
   windows-arm64
 )
+
+if [[ "$RELEASE_ANDROID" == "true" ]]; then
+  platforms+=("android-amd64")
+  platforms+=("android-arm64")
+fi
 
 prerelease=""
 if [[ $GH_RELEASE_TAG = *-* ]]; then
@@ -46,16 +49,17 @@ else
       ext=".exe"
     fi
     cc=""
+    cgo_enabled="${CGO_ENABLED:-0}"
     if [ "$goos" = "android" ]; then
       if [ "$goarch" = "amd64" ]; then
-        cc=${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android30-clang
+        cc="${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android${ANDROID_SDK_VERSION}-clang"
+        cgo_enabled="1"
       elif [ "$goarch" = "arm64" ]; then
-        cc=${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android30-clang
+        cc="${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android${ANDROID_SDK_VERSION}-clang"
+        cgo_enabled="1"
       fi
-      GOOS="$goos" GOARCH="$goarch" CGO_ENABLED=1 CC="$cc" go build -trimpath -ldflags="-s -w" -o "dist/${p}${ext}"
-      continue
     fi
-    GOOS="$goos" GOARCH="$goarch" CGO_ENABLED="${CGO_ENABLED:-0}" go build -trimpath -ldflags="-s -w" -o "dist/${p}${ext}"
+    GOOS="$goos" GOARCH="$goarch" CGO_ENABLED="$cgo_enabled" CC="$cc" go build -trimpath -ldflags="-s -w" -o "dist/${p}${ext}"
   done
 fi
 
