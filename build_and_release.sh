@@ -21,6 +21,12 @@ if [[ "$RELEASE_ANDROID" == "true" ]]; then
   platforms+=("android-arm64")
 fi
 
+# We must know the android sdk version to build for android.
+if [[ "$RELEASE_ANDROID" == "true" && -z "$ANDROID_SDK_VERSION" ]]; then
+  echo "error: Cannot build for android without android_sdk_version." >&2
+  exit 1
+fi
+
 prerelease=""
 if [[ $GH_RELEASE_TAG = *-* ]]; then
   prerelease="--prerelease"
