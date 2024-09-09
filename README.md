@@ -128,7 +128,6 @@ jobs:
           gpg_fingerprint: ${{ steps.import_gpg.outputs.fingerprint }}
 ```
 
-
 ## Support for Artifact Attestations
 
 This action can optionally generate signed build provenance attestations for all published executables within `${{ github.workspace }}/dist/*`.
@@ -157,7 +156,6 @@ jobs:
         with:
           generate_attestations: true
 ```
-
 
 ## Authors
 
