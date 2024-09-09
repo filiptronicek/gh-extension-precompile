@@ -67,9 +67,13 @@ However, if you are running the workflow on a self-hosted runner, you need to al
     android_ndk_home: /path/to/android-ndk
 ```
 
+### Customizing the build process for Go extensions
+
+If you need to customize the build process for your Go extension, you can provide a custom build script. See [Extensions written in other compiled languages](#extensions-written-in-other-compiled-languages) below for instructions.
+
 ## Extensions written in other compiled languages
 
-If you aren't using Go for your compiled extension, you'll need to provide your own script for compiling your extension:
+If you aren't using Go for your compiled extension, or your Go extension requires customizations to the build script, you'll need to provide your own script for compiling your extension:
 
 ```yaml
 - uses: cli/gh-extension-precompile@v2
