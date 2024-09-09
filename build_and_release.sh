@@ -27,6 +27,13 @@ if [[ "$RELEASE_ANDROID" == "true" && -z "$ANDROID_SDK_VERSION" ]]; then
   exit 1
 fi
 
+# We must have `ANDROID_NDK_HOME` set to build for android.
+# This will be available by default on GitHub hosted runners.
+if [[ "$RELEASE_ANDROID" == "true" && ! -d "$ANDROID_NDK_HOME" ]]; then
+  echo "error: Cannot build for android without android_ndk_home." >&2
+  exit 1
+fi
+
 prerelease=""
 if [[ $GH_RELEASE_TAG = *-* ]]; then
   prerelease="--prerelease"
