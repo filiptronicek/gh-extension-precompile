@@ -36,12 +36,35 @@ When the `release` workflow finishes running, compiled binaries will be uploaded
 
 You can safely test out release automation by creating tags that have a `-` in them; for example: `v2.0.0-rc.1`. Such Releases will be published as _prereleases_ and will not count as a stable release of your extension.
 
-To maximize portability of built products, this action builds Go binaries with [cgo](https://pkg.go.dev/cmd/cgo) disabled. To override that, set the `CGO_ENABLED` environment variable:
+To maximize portability of built products, this action builds Go binaries with [cgo](https://pkg.go.dev/cmd/cgo) disabled unless you enable building for Android targets. To override cgo for all build targets, set the `CGO_ENABLED` environment variable:
 
 ```yaml
 - uses: cli/gh-extension-precompile@v1
   env:
     CGO_ENABLED: 1
+```
+
+### Building for Android
+
+As of `gh-extension-precompile@2`, building for Android targets like `android-arm64` and `android-amd64` is disabled by default. To enable building for Android targets, set at least the `release_android` and `android_sdk_version` action inputs:
+
+```yaml
+- uses: cli/gh-extension-precompile@v2
+  with:
+    release_android: true
+    android_sdk_version: 34
+```
+
+If you are running the workflow on a GitHub hosted runner, you do not need to set the `android_ndk_home` input. The Android SDK Build-tools and environment variables required to build for Android targets are [pre-installed and configured on GitHub hosted runners](https://github.com/actions/runner-images/blob/8cdc506384655ceaaa62d3f800e15b844e06bea4/images/ubuntu/Ubuntu2404-Readme.md?plain=1#L214-L233). 
+
+However, if you are running the workflow on a self-hosted runner, you need to also configure the `android_ndk_home` action input to the installation path of the Android NDK on the runner:
+
+```yaml
+- uses: cli/gh-extension-precompile@v2
+  with:
+    release_android: true
+    android_sdk_version: 34
+    android_ndk_home: /path/to/android-ndk
 ```
 
 ## Extensions written in other compiled languages
