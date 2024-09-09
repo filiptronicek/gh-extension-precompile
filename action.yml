@@ -24,7 +24,7 @@ inputs:
     description: "Whether to release android binaries, defaults to `false` if unspecified"
     default: false
   android_ndk_home:
-    description: "Path to the Android NDK for android-amd64 and android-arm64 builds, required for Go 1.22 or newer, defaults to `ANDROID_NDK_HOME` environment variable if unspecified"
+    description: "Path to the Android NDK for android-amd64 and android-arm64 builds"
   android_sdk_version:
     description: "Android SDK build-tools version"
 branding:
