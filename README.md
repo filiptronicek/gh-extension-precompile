@@ -24,7 +24,7 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: cli/gh-extension-precompile@v2
         with:
           go_version_file: go.mod
@@ -117,7 +117,7 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - id: import_gpg
         uses: crazy-max/ghaction-import-gpg@v5
         with:
