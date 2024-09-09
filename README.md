@@ -51,6 +51,7 @@ As of `gh-extension-precompile@v2`, building for Android targets like `android-a
 ```yaml
 - uses: cli/gh-extension-precompile@v2
   with:
+    go_version_file: go.mod
     release_android: true
     android_sdk_version: 34
 ```
@@ -62,6 +63,7 @@ However, if you are running the workflow on a self-hosted runner, you need to al
 ```yaml
 - uses: cli/gh-extension-precompile@v2
   with:
+    go_version_file: go.mod
     release_android: true
     android_sdk_version: 34
     android_ndk_home: /path/to/android-ndk
