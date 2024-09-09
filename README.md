@@ -25,7 +25,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: cli/gh-extension-precompile@v1
+      - uses: cli/gh-extension-precompile@v2
         with:
           go_version: "1.16"
 ```
@@ -39,14 +39,14 @@ You can safely test out release automation by creating tags that have a `-` in t
 To maximize portability of built products, this action builds Go binaries with [cgo](https://pkg.go.dev/cmd/cgo) disabled unless you enable building for Android targets. To override cgo for all build targets, set the `CGO_ENABLED` environment variable:
 
 ```yaml
-- uses: cli/gh-extension-precompile@v1
+- uses: cli/gh-extension-precompile@v2
   env:
     CGO_ENABLED: 1
 ```
 
 ### Building for Android
 
-As of `gh-extension-precompile@2`, building for Android targets like `android-arm64` and `android-amd64` is disabled by default. To enable building for Android targets, set at least the `release_android` and `android_sdk_version` action inputs:
+As of `gh-extension-precompile@v2`, building for Android targets like `android-arm64` and `android-amd64` is disabled by default. To enable building for Android targets, set at least the `release_android` and `android_sdk_version` action inputs:
 
 ```yaml
 - uses: cli/gh-extension-precompile@v2
@@ -72,7 +72,7 @@ However, if you are running the workflow on a self-hosted runner, you need to al
 If you aren't using Go for your compiled extension, you'll need to provide your own script for compiling your extension:
 
 ```yaml
-- uses: cli/gh-extension-precompile@v1
+- uses: cli/gh-extension-precompile@v2
   with:
     build_script_override: "script/build.sh"
 ```
@@ -117,7 +117,7 @@ jobs:
         with:
           gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
           passphrase: ${{ secrets.GPG_PASSPHRASE }}
-      - uses: cli/gh-extension-precompile@v1
+      - uses: cli/gh-extension-precompile@v2
         with:
           gpg_fingerprint: ${{ steps.import_gpg.outputs.fingerprint }}
 ```
@@ -147,7 +147,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: cli/gh-extension-precompile@v1
+      - uses: cli/gh-extension-precompile@v2
         with:
           generate_attestations: true
 ```
