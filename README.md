@@ -36,7 +36,7 @@ When the `release` workflow finishes running, compiled binaries will be uploaded
 
 You can safely test out release automation by creating tags that have a `-` in them; for example: `v2.0.0-rc.1`. Such Releases will be published as _prereleases_ and will not count as a stable release of your extension.
 
-To maximize portability of built products, this action builds Go binaries with [cgo](https://pkg.go.dev/cmd/cgo) disabled unless you [enable building for Android targets](#building-for-android). To override cgo for all build targets, set the `CGO_ENABLED` environment variable:
+To maximize portability of built products, this action builds Go binaries with [cgo](https://pkg.go.dev/cmd/cgo) disabled with the exception of [Android build targets](#building-for-android). To override cgo for all build targets, set the `CGO_ENABLED` environment variable:
 
 ```yaml
 - uses: cli/gh-extension-precompile@v2
@@ -46,28 +46,17 @@ To maximize portability of built products, this action builds Go binaries with [
 
 ### Building for Android
 
-As of `gh-extension-precompile@v2`, building for Android targets like `android-arm64` and `android-amd64` is disabled by default. To enable building for Android targets, set at least the `release_android` and `android_sdk_version` action inputs:
+`gh-extension-precompile@v2` introduces a breaking change by disabling `android-arm64` and `android-amd64` build targets by default due to [Go external linking requirements](https://github.com/cli/gh-extension-precompile/issues/50#issuecomment-2078086299).
 
-```yaml
-- uses: cli/gh-extension-precompile@v2
-  with:
-    go_version_file: go.mod
-    release_android: true
-    android_sdk_version: 34
-```
+To enable Android build targets:
 
-If you are running the workflow on a GitHub hosted runner, you do not need to set the `android_ndk_home` input. The Android SDK Build-tools and environment variables required to build for Android targets are [pre-installed and configured on GitHub hosted runners](https://github.com/actions/runner-images/blob/8cdc506384655ceaaa62d3f800e15b844e06bea4/images/ubuntu/Ubuntu2404-Readme.md?plain=1#L214-L233). 
+1. `release_android` must be set to `true`
+2. `android_sdk_version` must be set to a targeted [Android API level](https://developer.android.com/tools/releases/platforms)
+3. `android_ndk_home` must be set to the path to Android NDK installed on Actions runner
 
-However, if you are running the workflow on a self-hosted runner, you need to also configure the `android_ndk_home` action input to the installation path of the Android NDK on the runner:
+   `cli/gh-extension-precompile` will use pre-installed Android tools on GitHub-managed runners by default; self-hosted runners will need to install and configure this input.
 
-```yaml
-- uses: cli/gh-extension-precompile@v2
-  with:
-    go_version_file: go.mod
-    release_android: true
-    android_sdk_version: 34
-    android_ndk_home: /path/to/android-ndk
-```
+   _For more information on Android NDK installed on GitHub-managed runners, see [`actions/runner-images`](https://github.com/actions/runner-images/blob/main/images/ubuntu/Ubuntu2404-Readme.md#android)
 
 ### Customizing the build process for Go extensions
 
