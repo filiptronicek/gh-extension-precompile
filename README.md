@@ -56,7 +56,7 @@ To enable Android build targets:
 
    `cli/gh-extension-precompile` will use pre-installed Android tools on GitHub-managed runners by default; self-hosted runners will need to install and configure this input.
 
-   _For more information on Android NDK installed on GitHub-managed runners, see [`actions/runner-images`](https://github.com/actions/runner-images/blob/main/images/ubuntu/Ubuntu2404-Readme.md#android)
+   _For more information on Android NDK installed on GitHub-managed runners, see [`actions/runner-images`](https://github.com/actions/runner-images/blob/main/images/ubuntu/Ubuntu2404-Readme.md#android)_
 
 ### Customizing the build process for Go extensions
 
