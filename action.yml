@@ -20,6 +20,13 @@ inputs:
   generate_attestations:
     description: "Whether to generate artifact attestations for release binaries to establish build provenance, defaults to `false` if unspecified"
     default: false
+  release_android:
+    description: "Whether to release android binaries, defaults to `false` if unspecified"
+    default: false
+  android_ndk_home:
+    description: "Path to the Android NDK for android-amd64 and android-arm64 builds"
+  android_sdk_version:
+    description: "Android SDK build-tools version"
 branding:
   color: purple
   icon: box
@@ -77,6 +84,18 @@ runs:
         INPUT_TITLE: ${{ inputs.release_title_prefix }}
       shell: bash
 
+    - id: determine_android_ndk_home
+      run: |
+        if [ -n "$INPUT_ANDROID_NDK_HOME" ]; then
+          android_ndk_home="$INPUT_ANDROID_NDK_HOME"
+        else
+          android_ndk_home="$ANDROID_NDK_HOME"
+        fi
+        echo "ANDROID_NDK_HOME=$android_ndk_home" >> "$GITHUB_OUTPUT"
+      env:
+        INPUT_ANDROID_NDK_HOME: ${{ inputs.android_ndk_home }}
+      shell: bash
+
     - run: ${GITHUB_ACTION_PATH//\\//}/build_and_release.sh
       env:
         GITHUB_REPOSITORY: ${{ github.repository }}
@@ -86,9 +105,12 @@ runs:
         GH_RELEASE_TAG: ${{ steps.determine_release_tag.outputs.TAG }}
         GH_RELEASE_TITLE_PREFIX: ${{ steps.determine_release_title_prefix.outputs.PREFIX }}
         DRAFT_RELEASE: ${{ inputs.draft_release }}
+        ANDROID_NDK_HOME: ${{ steps.determine_android_ndk_home.outputs.ANDROID_NDK_HOME }}
+        ANDROID_SDK_VERSION: ${{ inputs.android_sdk_version }}
+        RELEASE_ANDROID: ${{ inputs.release_android }}
       shell: bash
 
     - if: ${{ inputs.generate_attestations == 'true' }}
       uses: actions/attest-build-provenance@v1
       with:
-        subject-path: '${{ github.workspace }}/dist/*'
+        subject-path: "${{ github.workspace }}/dist/*"

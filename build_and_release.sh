@@ -2,8 +2,6 @@
 set -e
 
 platforms=(
-  android-amd64
-  android-arm64
   darwin-amd64
   darwin-arm64
   freebsd-386
@@ -17,6 +15,24 @@ platforms=(
   windows-amd64
   windows-arm64
 )
+
+if [[ "$RELEASE_ANDROID" == "true" ]]; then
+  platforms+=("android-amd64")
+  platforms+=("android-arm64")
+fi
+
+# We must know the android sdk version to build for android.
+if [[ "$RELEASE_ANDROID" == "true" && -z "$ANDROID_SDK_VERSION" ]]; then
+  echo "error: Cannot build for android without android_sdk_version." >&2
+  exit 1
+fi
+
+# We must have `ANDROID_NDK_HOME` set to build for android.
+# This will be available by default on GitHub hosted runners.
+if [[ "$RELEASE_ANDROID" == "true" && ! -d "$ANDROID_NDK_HOME" ]]; then
+  echo "error: Cannot build for android without android_ndk_home." >&2
+  exit 1
+fi
 
 prerelease=""
 if [[ $GH_RELEASE_TAG = *-* ]]; then
@@ -45,7 +61,18 @@ else
     if [ "$goos" = "windows" ]; then
       ext=".exe"
     fi
-    GOOS="$goos" GOARCH="$goarch" CGO_ENABLED="${CGO_ENABLED:-0}" go build -trimpath -ldflags="-s -w" -o "dist/${p}${ext}"
+    cc=""
+    cgo_enabled="${CGO_ENABLED:-0}"
+    if [ "$goos" = "android" ]; then
+      if [ "$goarch" = "amd64" ]; then
+        cc="${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android${ANDROID_SDK_VERSION}-clang"
+        cgo_enabled="1"
+      elif [ "$goarch" = "arm64" ]; then
+        cc="${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android${ANDROID_SDK_VERSION}-clang"
+        cgo_enabled="1"
+      fi
+    fi
+    GOOS="$goos" GOARCH="$goarch" CGO_ENABLED="$cgo_enabled" CC="$cc" go build -trimpath -ldflags="-s -w" -o "dist/${p}${ext}"
   done
 fi
 

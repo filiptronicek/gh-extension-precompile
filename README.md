@@ -24,10 +24,10 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: cli/gh-extension-precompile@v1
+      - uses: actions/checkout@v4
+      - uses: cli/gh-extension-precompile@v2
         with:
-          go_version: "1.16"
+          go_version_file: go.mod
 ```
 
 Then, either push a new git tag like `v1.0.0` to your repository, or create a new Release and have it initialize the associated git tag.
@@ -36,20 +36,38 @@ When the `release` workflow finishes running, compiled binaries will be uploaded
 
 You can safely test out release automation by creating tags that have a `-` in them; for example: `v2.0.0-rc.1`. Such Releases will be published as _prereleases_ and will not count as a stable release of your extension.
 
-To maximize portability of built products, this action builds Go binaries with [cgo](https://pkg.go.dev/cmd/cgo) disabled. To override that, set the `CGO_ENABLED` environment variable:
+To maximize portability of built products, this action builds Go binaries with [cgo](https://pkg.go.dev/cmd/cgo) disabled with the exception of [Android build targets](#building-for-android). To override cgo for all build targets, set the `CGO_ENABLED` environment variable:
 
 ```yaml
-- uses: cli/gh-extension-precompile@v1
+- uses: cli/gh-extension-precompile@v2
   env:
     CGO_ENABLED: 1
 ```
 
+### Building for Android
+
+`gh-extension-precompile@v2` introduces a breaking change by disabling `android-arm64` and `android-amd64` build targets by default due to [Go external linking requirements](https://github.com/cli/gh-extension-precompile/issues/50#issuecomment-2078086299).
+
+To enable Android build targets:
+
+1. `release_android` must be set to `true`
+2. `android_sdk_version` must be set to a targeted [Android API level](https://developer.android.com/tools/releases/platforms)
+3. `android_ndk_home` must be set to the path to Android NDK installed on Actions runner
+
+   `cli/gh-extension-precompile` will use pre-installed Android tools on GitHub-managed runners by default; self-hosted runners will need to install and configure this input.
+
+   _For more information on Android NDK installed on GitHub-managed runners, see [`actions/runner-images`](https://github.com/actions/runner-images/blob/main/images/ubuntu/Ubuntu2404-Readme.md#android)_
+
+### Customizing the build process for Go extensions
+
+If you need to customize the build process for your Go extension, you can provide a custom build script. See [Extensions written in other compiled languages](#extensions-written-in-other-compiled-languages) below for instructions.
+
 ## Extensions written in other compiled languages
 
-If you aren't using Go for your compiled extension, you'll need to provide your own script for compiling your extension:
+If you aren't using Go for your compiled extension, or your Go extension requires customizations to the build script, you'll need to provide your own script for compiling your extension:
 
 ```yaml
-- uses: cli/gh-extension-precompile@v1
+- uses: cli/gh-extension-precompile@v2
   with:
     build_script_override: "script/build.sh"
 ```
@@ -88,17 +106,16 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - id: import_gpg
         uses: crazy-max/ghaction-import-gpg@v5
         with:
           gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
           passphrase: ${{ secrets.GPG_PASSPHRASE }}
-      - uses: cli/gh-extension-precompile@v1
+      - uses: cli/gh-extension-precompile@v2
         with:
           gpg_fingerprint: ${{ steps.import_gpg.outputs.fingerprint }}
 ```
-
 
 ## Support for Artifact Attestations
 
@@ -124,11 +141,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: cli/gh-extension-precompile@v1
+      - uses: cli/gh-extension-precompile@v2
         with:
           generate_attestations: true
 ```
-
 
 ## Authors
 
